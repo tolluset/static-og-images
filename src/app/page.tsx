@@ -1,27 +1,69 @@
-import { Metadata } from "next";
+import { Metadata, ResolvingMetadata } from "next";
 import path from "path";
 import fs from "fs";
 import satori from "satori";
 import Head from "next/head";
 
+const config = {};
+
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
-  title: "OG Satori Example",
-  description: "This is an example of using Satori to generate OG images",
-};
-// const m = await fetch(new URL("./Mooli-Regular.ttf", import.meta.url)).then(
-//   (r) => r.arrayBuffer()
-// );
+export async function generateMetadata(
+  {},
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const fontPath = path.resolve("./src/fonts/Mooli-Regular.ttf");
+  const m = fs.readFileSync(fontPath);
+  const ogImg = await satori(
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#fff",
+        fontSize: 32,
+        fontWeight: 600,
+      }}
+    >
+      <div style={{ marginTop: 40 }}>빌드에들어가나 🐰</div>
+    </div>,
+    {
+      width: 600,
+      height: 400,
+      fonts: [
+        {
+          name: "Mooli",
+          data: m,
+          weight: 400,
+          style: "normal",
+        },
+      ],
+    }
+  );
+
+  return {
+    title: "OG Satori Example",
+    description: "This is an example of using Satori to generate OG images 🐰",
+    openGraph: {
+      images: ogImg,
+    },
+  };
+}
 
 export default async function Home() {
-  const fontPath = path.resolve("./src/fonts/Mooli-Regular.ttf");
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      check out the og image 🐰
+      <OG />
+    </main>
+  );
+}
 
-  console.log("🚀 ~ __dirname:", __dirname);
-  const m = fs.readFileSync(fontPath);
-
-  console.log("🚀 ~ m:", m);
-  const ogImg = await satori(
+function OG() {
+  return (
     <div
       style={{
         display: "flex",
@@ -42,6 +84,8 @@ export default async function Home() {
           backgroundImage:
             "linear-gradient(90deg, rgb(0, 124, 240), rgb(0, 223, 216))",
           backgroundClip: "text",
+          // @ts-ignore
+          "-webkit-background-clip": "text",
           color: "transparent",
         }}
       >
@@ -52,6 +96,8 @@ export default async function Home() {
           backgroundImage:
             "linear-gradient(90deg, rgb(121, 40, 202), rgb(255, 0, 128))",
           backgroundClip: "text",
+          // @ts-ignore
+          "-webkit-background-clip": "text",
           color: "transparent",
         }}
       >
@@ -62,34 +108,13 @@ export default async function Home() {
           backgroundImage:
             "linear-gradient(90deg, rgb(255, 77, 77), rgb(249, 203, 40))",
           backgroundClip: "text",
+          // @ts-ignore
+          "-webkit-background-clip": "text",
           color: "transparent",
         }}
       >
         Build time
       </div>
-    </div>,
-    {
-      width: 600,
-      height: 400,
-      fonts: [
-        {
-          name: "Mooli",
-          data: m,
-          weight: 400,
-          style: "normal",
-        },
-      ],
-    }
-  );
-
-  console.log("🚀 ~ ogImg:", ogImg);
-
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <Head>
-        <meta property="og:image" content={ogImg} />
-      </Head>
-      <div dangerouslySetInnerHTML={{ __html: ogImg }}></div>
-    </main>
+    </div>
   );
 }
